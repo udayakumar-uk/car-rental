@@ -17,31 +17,25 @@ export default function HomePage(){
                     2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
                     2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020,];
 
-    const [year, setYear] = React.useState(years)
-
+    const [year, setYear] = React.useState(years);
     const [cars, setCars] = React.useState([]);
 
     React.useEffect(() => {
         var mycars = ['audi', 'bmw', 'bugatti', 'ford', 'toyota'];
         var carImg = [Audi, Bmw, Bugatti, Ford, Toyota];
-        
-        setCars([]);
 
-        for(let i=0; i<mycars.length; i++){
-            fetch('https://api.api-ninjas.com/v1/cars?make='+mycars[i]+'&limit=1', {
+        Promise.all(mycars.map((car, i) => 
+            fetch('https://api.api-ninjas.com/v1/cars?make='+car+'&limit=1', {
                 headers: { 'X-Api-Key': 'rvv0/rVwBcnmAE5XHCXTqA==8047v8UTsnYmf04u' },
                 method: 'GET'
-            }).then(res => res.json()).then(function(result){
-                let addImg = result[0];
-                // allCars = [...allCars, {...addImg, img: carImg[i], id: i}];
-                // console.log(allCars);
-                setCars(oldData => [...oldData, {...addImg, img: carImg[i], id: i}]); 
-            })
-        }
+            }).then(res => res.json()).then(result => ({ ...result[0], img: carImg[i], id: i }))
+        ))
+        .then(newCars => {
+            setCars(newCars);
+            console.log(newCars);
+        });
 
-
-        console.log(cars);
-    }, []); 
+    }, []);
 
     // send cars data to a component
     const latCars = cars.map((car) => <Col sm="6" md="4"><CarCard key={car.id} mycar={car} /> </Col>);
